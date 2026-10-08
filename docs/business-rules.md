@@ -1,0 +1,66 @@
+# Business rules and flows
+
+These rules are implemented in backend services and constants. The backend is authoritative for catalog price, inventory, promotions, totals, order status and membership points.
+
+## Customer flow
+
+1. Register or log in through `/api/auth`; successful authentication returns a JWT.
+2. Browse active books/categories. Book list supports text search, category, price, rating, sort and pagination.
+3. Add/update/remove cart lines. The cart belongs to the authenticated user; quantity must be a positive integer, book must be active, and requested quantity cannot exceed stock.
+4. Checkout sends shipping address, payment method and optional promotion code. Client-supplied price/discount/shipping/total fields are not part of the strict request schema.
+5. View own order list/detail; cancel only an eligible order. Profile update/password change, membership, favorites and review endpoints require authentication.
+
+## Catalog and cart
+
+Only active books/categories appear in public catalog queries. A book discount price is used only when it is positive and lower than its regular price. Cart display computes line subtotals from the current server catalog price; cart items do not store a price snapshot.
+
+## Order and inventory flow
+
+Checkout runs in a serializable Prisma transaction:
+
+1. Load the current user's cart and active books.
+2. Reject empty cart, inactive/unavailable books, invalid quantities or insufficient stock.
+3. Compute unit price, line subtotal, subtotal, promotion discount, shipping fee and final total in backend code using cents to avoid floating-point currency arithmetic.
+4. Reserve promotion usage when a promotion is supplied.
+5. Conditionally decrement stock, requiring enough current inventory.
+6. Create the order and `OrderItem` rows with title, unit price and line subtotal snapshots.
+7. Create a `Payment` record with `PENDING` status, clear the cart and update membership points.
+
+Current shipping constants are 30,000 VND standard fee and free shipping at a pre-promotion subtotal of 500,000 VND. Promotion discount applies to the subtotal and is capped at the subtotal. The promotion must be active, within its date range, meet its minimum order amount and have remaining usage if limited.
+
+The transaction rolls back together if a step fails. Admin dashboard revenue sums orders whose payment status is `PAID`; best sellers are based on delivered orders. The dashboard service currently returns an empty revenue trend list.
+
+## Order status and cancellation
+
+Allowed admin transitions in `constants/commerce.js`:
+
+```text
+PENDING    → CONFIRMED | CANCELLED
+CONFIRMED  → PROCESSING | CANCELLED
+PROCESSING → SHIPPING
+SHIPPING   → DELIVERED
+DELIVERED  → (terminal)
+CANCELLED  → (terminal)
+```
+
+An admin cannot cancel a paid order without a refund first. A non-COD order must be paid before it can be marked delivered. When COD order is marked delivered, payment and pending payment rows are changed to `PAID`.
+
+Customers can cancel only `PENDING` or `CONFIRMED` orders whose payment is not `PAID`. Cancellation restores stock, releases reserved promotion use, marks pending payment records `FAILED`, marks the order `CANCELLED`/payment `FAILED`, and reverses the points awarded for that order.
+
+## Payment flow and current limitation
+
+The checkout request accepts `COD`, `BANK_TRANSFER`, `CARD` or `E_WALLET`. Checkout creates a payment row with amount/method and `PENDING` status; it returns `paymentPending: true`. There is no payment route, provider adapter, callback/webhook, collection, refund or customer payment confirmation implemented in this repository. For non-COD methods, an external trusted process would have to update payment state before delivery, but that integration is not currently present. Do not treat order creation as payment collection.
+
+## Membership
+
+The user record holds `points` and a `MembershipLevel` enum. Active `Membership` rows provide tier names and `minPoints` thresholds. At checkout, points are calculated as one point per 10,000 VND of final order total, rounded down, and added when the order is created (even while payment remains pending). The current level is recalculated against active thresholds. Eligible order cancellation reverses the points. `GET /api/membership/me` returns points, level, current/next tier and points remaining to next tier.
+
+## Reviews
+
+Rating must be an integer from 1 to 5. An authenticated user may review a book only after at least one of their orders containing it has status `DELIVERED`. The database enforces one review per user/book pair; creating another review upserts the existing one and makes it active again. Public review queries include only active reviews. Admin can approve, hide or delete reviews.
+
+## Promotions, gift cards and gifts
+
+Promotions can be listed publicly when active and currently in date range, validated against the current cart, and applied during checkout. Usage reservation occurs within checkout transaction. Admin can CRUD and activate/deactivate promotions.
+
+Gift cards and gifts currently have admin list/create/update/deactivate APIs and Prisma models. There is no customer gift-card balance redemption, gift redemption or points-exchange flow in the current source.
