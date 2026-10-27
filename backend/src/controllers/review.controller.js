@@ -13,5 +13,5 @@ export const listMyReviews = asyncHandler(async (req, res) => {
 
 export const createReview = asyncHandler(async (req, res) => {
   const data = await reviewService.create(req.user.id, req.body);
-  res.status(201).json({ success: true, message: 'Review saved successfully', data });
+  res.status(201).json({ success: true, message: 'Đánh giá đã được gửi và đang chờ quản trị viên duyệt.', data });
 });

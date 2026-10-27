@@ -1,7 +1,9 @@
+import StatusBadge from '../components/StatusBadge.jsx';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Check, ChevronRight, PackageSearch, ShoppingBag, Star } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, PackageSearch, ShoppingBag, Star, BookOpen, Gift, Mail, ArrowUpRight } from 'lucide-react';
 import BookCard from '../components/BookCard.jsx';
+import DiscoveryHero from '../components/DiscoveryHero.jsx';
 import PageState from '../components/PageState.jsx';
 import BookSkeleton from '../components/BookSkeleton.jsx';
 import SearchBar from '../components/SearchBar.jsx';
@@ -75,13 +77,29 @@ function AuthCard({ register = false }) {
 
 export function Home() {
   const loadFeatured = useCallback(() => bookService.list({ limit: 4, featured: true }), []);
-  const loadBestSellers = useCallback(() => bookService.list({ limit: 4, sort: 'best_selling' }), []);
   const loadArrivals = useCallback(() => bookService.list({ limit: 4, sort: 'newest' }), []);
   const loadCategories = useCallback(() => categoryService.list(), []);
   const loadReviews = useCallback(() => reviewService.listPublic({ featured: true, limit: 3 }), []);
   const loadPromotions = useCallback(() => promotionService.active(), []);
   const featured = useApi(loadFeatured);
-  const bestSellers = useApi(loadBestSellers);
+  const bestSellers = featured;
+  useEffect(() => {
+    let refreshing = false;
+    const refresh = async () => {
+      if (document.hidden || refreshing) return;
+      refreshing = true;
+      try { await featured.reload({ background: true }); }
+      finally { refreshing = false; }
+    };
+    const interval = window.setInterval(refresh, 30000);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [featured.reload]);
   const arrivals = useApi(loadArrivals);
   const categories = useApi(loadCategories);
   const reviews = useApi(loadReviews);
@@ -97,25 +115,25 @@ export function Home() {
     finally { setNewsletterBusy(false); }
   }
   return <>
-    <section className="hero shell"><div className="hero-copy"><span className="hero-label"><span /> KHÔNG GIAN DÀNH CHO NGƯỜI YÊU SÁCH</span><h1>Mỗi cuốn sách<br />mở ra <em>một thế giới.</em></h1><p>Tìm cảm hứng mới, những ý tưởng đáng nhớ và người bạn đồng hành cho hành trình của riêng bạn.</p><div className="hero-actions"><Link className="button button-dark" to="/books">Khám phá sách <ArrowRight size={17} /></Link><Link className="text-link" to="/membership">Tìm hiểu thành viên <ChevronRight size={15} /></Link></div><div className="hero-footnote"><span>01 / Đọc theo cách của bạn</span><span>Giao hàng tận nơi · Tích điểm thành viên</span></div></div><div className="hero-art" aria-label="Kệ sách minh họa"><div className="sun-disc" /><div className="art-caption">A GOOD BOOK<br />IS A QUIET FRIEND.</div><div className="book-stack"><i /><i /><i /><i /><i /></div><div className="art-vase"><span /></div><div className="art-shelf" /></div></section>
-    <section className="shell section-block"><div className="section-heading"><div><p className="eyebrow">CHỌN THEO TÂM TRẠNG</p><h2>Điều bạn muốn đọc hôm nay?</h2></div><Link className="text-link" to="/books">Xem tất cả <ArrowRight size={16} /></Link></div>
-      <PageState loading={categories.loading} error={categories.error} empty={!categories.loading && !categories.error && !asList(categories.data).length ? 'Chưa có danh mục sách.' : null}>
-        <div className="category-pills">{asList(categories.data).map((item, index) => <Link key={item.id} to={`/books?category=${encodeURIComponent(item.id)}`} className={`category-tile category-tile-${index % 4}`}><span>0{index + 1}</span><strong>{item.name}</strong><ArrowRight size={16} /></Link>)}</div>
-      </PageState>
-    </section>
-    <BookShelf kicker="BIÊN TẬP VIÊN GỢI Ý" title="Những trang sách đáng mở" state={featured} empty="Chưa có sách nổi bật." />
+    <DiscoveryHero state={featured} />
+    <BookShelf kicker="BIÊN TẬP VIÊN GỢI Ý" title="Nổi bật & Đáng đọc" state={featured} empty="Chưa có sách nổi bật." />
     <BookShelf kicker="ĐƯỢC ĐỌC NHIỀU" title="Sách bán chạy" state={bestSellers} empty="Chưa có dữ liệu bán chạy." />
     <BookShelf kicker="VỪA LÊN KỆ" title="Sách mới về" state={arrivals} empty="Chưa có sách mới." />
-    <section className="shell section-block promotion-section"><div className="section-heading"><div><p className="eyebrow">ƯU ĐÃI ĐANG DIỄN RA</p><h2>Một món quà nhỏ cho bạn đọc</h2></div><Link className="text-link" to="/books">Xem sách <ArrowRight size={16} /></Link></div><PageState loading={promotions.loading} error={promotions.error} empty={!promotions.loading && !promotions.error && !promotion ? 'Hiện chưa có chương trình khuyến mãi.' : null}>{promotion && <article className="promotion-card"><div><span className="promotion-tag">{promotion.code}</span><h3>{promotion.name}</h3><p>{promotion.description}</p><small>Áp dụng đến {formatDate(promotion.endsAt)}</small></div><strong>{promotion.discountType === 'PERCENTAGE' ? `${promotion.discountValue}%` : formatCurrency(promotion.discountValue)}</strong></article>}</PageState></section>
-    <section className="membership-banner shell"><div><p className="eyebrow">ĐỌC NHIỀU, NHẬN NHIỀU HƠN</p><h2>Mỗi lần đọc là một<br />bước tiến của bạn.</h2><p>Tích lũy điểm qua những đơn hàng và mở khóa quyền lợi thành viên.</p></div><Link className="button button-light" to="/membership">Khám phá thành viên <ArrowRight size={17} /></Link><span className="banner-orbit" /></section>
-    <section className="shell section-block home-reviews"><div className="section-heading"><div><p className="eyebrow">LỜI TỪ BẠN ĐỌC</p><h2>Những cuốn sách để lại dấu ấn</h2></div><Link className="text-link" to="/reviews">Chia sẻ cảm nhận <ArrowRight size={16} /></Link></div><PageState loading={reviews.loading} error={reviews.error} empty={!reviews.loading && !reviews.error && !asList(reviews.data).length ? 'Chưa có đánh giá nổi bật.' : null}><div className="home-review-grid">{asList(reviews.data).map((review) => <article className="home-review-card" key={review.id}><div className="review-stars">{Array.from({ length: Number(review.rating) || 0 }, (_, i) => <Star key={i} size={14} fill="currentColor" />)}</div><p>“{review.comment}”</p><strong>{review.user?.name || 'Bạn đọc BookShop'}</strong><span>{review.book?.title}</span></article>)}</div></PageState></section>
-    <section className="newsletter-section"><div className="shell newsletter-inner"><div><p className="eyebrow">THƯ TỪ BOOKSHOP</p><h2>Một chút cảm hứng<br />gửi vào hộp thư.</h2><p>Nhận gợi ý sách mới, bài đọc hay và ưu đãi dành riêng cho bạn.</p></div><form className="newsletter-form" onSubmit={subscribe}><label htmlFor="newsletter-email">Email của bạn</label><div><input id="newsletter-email" required type="email" value={newsletterEmail} onChange={(e) => setNewsletterEmail(e.target.value)} placeholder="ban@email.com" /><button disabled={newsletterBusy}>{newsletterBusy ? 'Đang gửi…' : 'Đăng ký'} <ArrowRight size={16} /></button></div>{newsletterMessage && <p role="status">{newsletterMessage}</p>}</form></div></section>
+    <section className="shell section-block editorial-categories"><div className="section-heading"><div><p className="eyebrow">KHÁM PHÁ DANH MỤC</p><h2>Bạn muốn đọc gì hôm nay?</h2></div><Link className="text-link" to="/books">Xem tất cả <ArrowRight size={16} /></Link></div>
+      <PageState loading={categories.loading} error={categories.error} empty={!categories.loading && !categories.error && !asList(categories.data).length ? 'Chưa có danh mục sách.' : null}>
+        <div className="category-pills">{asList(categories.data).map((item, index) => <Link key={item.id} to={`/books?category=${encodeURIComponent(item.id)}`} className={`category-tile category-tile-${index % 4}`}><span className="category-tile-icon"><BookOpen size={20} /></span><strong>{item.name}</strong><ArrowUpRight size={17} /></Link>)}</div>
+      </PageState>
+    </section>
+    <section className="shell section-block promotion-section"><div className="section-heading"><div><p className="eyebrow">DÀNH CHO BẠN</p><h2>Ưu đãi từ BookShop</h2></div><Link className="text-link" to="/books">Xem sách <ArrowRight size={16} /></Link></div><PageState loading={promotions.loading} error={promotions.error} empty={!promotions.loading && !promotions.error && !promotion ? <span><strong>Hiện chưa có ưu đãi.</strong><span>Bạn vẫn có thể khám phá những đầu sách đang có tại BookShop.</span></span> : null}>{promotion && <article className="promotion-card"><div><span className="promotion-tag">{promotion.code}</span><h3>{promotion.name}</h3><p>{promotion.description}</p><small>Áp dụng đến {formatDate(promotion.endsAt)}</small></div><strong>{promotion.discountType === 'PERCENTAGE' ? `${promotion.discountValue}%` : formatCurrency(promotion.discountValue)}</strong></article>}</PageState></section>
+    <section className="membership-banner shell"><div className="membership-intro"><span className="membership-symbol" aria-hidden="true"><Gift size={28} /></span><div><p className="eyebrow">ĐỌC NHIỀU, NHẬN NHIỀU HƠN</p><h2>Đọc thêm. Nhận thêm quyền lợi.</h2><p>Tích lũy điểm qua mỗi đơn hàng và khám phá quyền lợi dành cho thành viên.</p></div></div><Link className="button button-light" to="/membership">Khám phá thành viên <ArrowRight size={17} /></Link></section>
+    <section className="shell section-block home-reviews"><div className="section-heading"><div><p className="eyebrow">LỜI TỪ BẠN ĐỌC</p><h2>Bạn đọc nói gì?</h2></div><Link className="text-link" to="/reviews">Chia sẻ cảm nhận <ArrowRight size={16} /></Link></div><PageState loading={reviews.loading} error={reviews.error} empty={!reviews.loading && !reviews.error && !asList(reviews.data).length ? 'Chưa có đánh giá nổi bật.' : null}><div className="home-review-grid">{asList(reviews.data).map((review) => <article className="home-review-card" key={review.id}><div className="review-stars">{Array.from({ length: Number(review.rating) || 0 }, (_, i) => <Star key={i} size={14} fill="currentColor" />)}</div><p>“{review.comment}”</p><div className="review-reader"><span className="review-avatar" aria-hidden="true">{(review.user?.name || 'B').trim().slice(0, 1)}</span><div><strong>{review.user?.name || 'Bạn đọc BookShop'}</strong><span>{review.book?.title}</span></div></div></article>)}</div></PageState></section>
+    <section className="newsletter-section home-newsletter"><div className="shell newsletter-inner"><div><p className="eyebrow"><Mail size={15} /> THƯ TỪ BOOKSHOP</p><h2>Cuốn sách hay tiếp theo,<br />ngay trong hộp thư của bạn.</h2><p>Nhận gợi ý sách mới, bài đọc hay và ưu đãi dành riêng cho bạn.</p></div><form className="newsletter-form" onSubmit={subscribe}><label htmlFor="newsletter-email">Email của bạn</label><div><input id="newsletter-email" required type="email" value={newsletterEmail} onChange={(e) => setNewsletterEmail(e.target.value)} placeholder="ban@email.com" /><button disabled={newsletterBusy}>{newsletterBusy ? 'Đang gửi…' : 'Đăng ký'} <ArrowRight size={16} /></button></div>{newsletterMessage && <p role="status">{newsletterMessage}</p>}</form></div></section>
   </>;
 }
 
 function BookShelf({ kicker, title, state, empty }) {
   const books = asList(state.data);
-  return <section className="shell section-block"><div className="section-heading"><div><p className="eyebrow">{kicker}</p><h2>{title}</h2></div><Link className="text-link" to="/books">Khám phá cửa hàng <ArrowRight size={16} /></Link></div>
+  return <section className="shell section-block"><div className="section-heading bookshelf-heading"><div><p className="eyebrow">{kicker}</p><h2>{title}</h2></div><Link className="text-link" to="/books">Khám phá cửa hàng <ArrowRight size={16} /></Link></div>
     {state.loading ? <BookSkeleton /> : <PageState error={state.error} empty={!state.error && !books.length ? empty : null}>{books.length > 0 && <BookGrid books={books} />}</PageState>}
   </section>;
 }
@@ -130,31 +148,54 @@ export function Books() {
   const sort = params.get('sort') || 'newest';
   const [searchText, setSearchText] = useState(query);
   const [categoryResponse, setCategoryResponse] = useState([]);
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [categoryError, setCategoryError] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [minPrice, setMinPrice] = useState(params.get('minPrice') || '');
   const [maxPrice, setMaxPrice] = useState(params.get('maxPrice') || '');
   const [rating, setRating] = useState(params.get('rating') || '');
   const page = Number(params.get('page') || 1);
+  useEffect(() => { setSearchText(query); }, [query]);
+  useEffect(() => {
+    setMinPrice(params.get('minPrice') || '');
+    setMaxPrice(params.get('maxPrice') || '');
+    setRating(params.get('rating') || '');
+  }, [params]);
   const load = useCallback(() => bookService.list({ q: query, categoryId, sort, minPrice: params.get('minPrice') || undefined, maxPrice: params.get('maxPrice') || undefined, rating: params.get('rating') || undefined, page, limit: 12 }), [query, categoryId, sort, params.get('minPrice'), params.get('maxPrice'), params.get('rating'), page]);
   const { data, loading, error } = useApi(load, [query, categoryId, sort, params.get('minPrice'), params.get('maxPrice'), params.get('rating'), page]);
-  useEffect(() => { categoryService.list().then((r) => setCategoryResponse(asList(unwrapData(r)))).catch(() => {}); }, []);
+  useEffect(() => {
+    let active = true;
+    categoryService.list()
+      .then((response) => {
+        if (active) setCategoryResponse(asList(unwrapData(response)));
+      })
+      .catch((requestError) => {
+        if (active) setCategoryError(getErrorMessage(requestError, 'Không thể tải danh mục sách.'));
+      })
+      .finally(() => {
+        if (active) setCategoryLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
   const books = asList(data);
-  function submit(event) { event.preventDefault(); setParams((current) => { const next = new URLSearchParams(current); searchText.trim() ? next.set('q', searchText.trim()) : next.delete('q'); return next; }); }
+  function submit(event) { event.preventDefault(); setParams((current) => { const next = new URLSearchParams(current); searchText.trim() ? next.set('q', searchText.trim()) : next.delete('q'); next.delete('page'); return next; }); }
   function applyFilters(event) {
     event.preventDefault();
     setParams((current) => {
       const next = new URLSearchParams(current);
-      minPrice ? next.set('minPrice', minPrice) : next.delete('minPrice');
-      maxPrice ? next.set('maxPrice', maxPrice) : next.delete('maxPrice');
+      const min = minPrice.trim();
+      const max = maxPrice.trim();
+      min ? next.set('minPrice', min) : next.delete('minPrice');
+      max ? next.set('maxPrice', max) : next.delete('maxPrice');
       rating ? next.set('rating', rating) : next.delete('rating');
       next.delete('page');
       return next;
     });
     setFiltersOpen(false);
   }
-  const filters = <form className="filter-form" onSubmit={applyFilters}><div className="filter-title"><strong>Bộ lọc</strong><button type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); setRating(''); setParams((current) => { const n = new URLSearchParams(current); ['minPrice', 'maxPrice', 'rating'].forEach((key) => n.delete(key)); return n; }); }}>Xóa lọc</button></div><label>Danh mục<select value={categoryId} onChange={(e) => setParams((p) => { const n = new URLSearchParams(p); e.target.value ? n.set('category', e.target.value) : n.delete('category'); n.delete('page'); return n; })}><option value="">Tất cả danh mục</option>{categoryResponse.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><div className="filter-label">Khoảng giá</div><div className="price-range-fields"><label><span>Từ</span><input type="number" min="0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="0" /></label><label><span>Đến</span><input type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Không giới hạn" /></label></div><label>Đánh giá<select value={rating} onChange={(e) => setRating(e.target.value)}><option value="">Tất cả</option><option value="4">Từ 4 sao</option><option value="3">Từ 3 sao</option><option value="2">Từ 2 sao</option></select></label><button className="button button-primary button-wide" type="submit">Áp dụng bộ lọc</button></form>;
+  const filters = <form className="filter-form" onSubmit={applyFilters}><div className="filter-title"><strong>Bộ lọc</strong><button type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); setRating(''); setParams((current) => { const n = new URLSearchParams(current); ['category', 'minPrice', 'maxPrice', 'rating', 'page'].forEach((key) => n.delete(key)); return n; }); }}>Xóa lọc</button></div><label>Danh mục<select value={categoryId} disabled={categoryLoading} onChange={(e) => setParams((p) => { const n = new URLSearchParams(p); e.target.value ? n.set('category', e.target.value) : n.delete('category'); n.delete('page'); return n; })}><option value="">{categoryLoading ? 'Đang tải danh mục…' : 'Tất cả danh mục'}</option>{categoryResponse.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>{categoryError && <p className="inline-error" role="alert">Không thể tải danh mục: {categoryError}</p>}<div className="filter-label">Khoảng giá</div><div className="price-range-fields"><label><span>Từ</span><input type="text" inputMode="decimal" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Ví dụ: 100.000" /></label><label><span>Đến</span><input type="text" inputMode="decimal" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Không giới hạn" /></label></div><label>Đánh giá<select value={rating} onChange={(e) => setRating(e.target.value)}><option value="">Tất cả</option><option value="4">Từ 4 sao</option><option value="3">Từ 3 sao</option><option value="2">Từ 2 sao</option></select></label><button className="button button-primary button-wide" type="submit">Áp dụng bộ lọc</button></form>;
   return <div className="shell page-shell"><ScreenTitle kicker="CỬA HÀNG" title="Tìm cuốn sách của bạn" description="Từ những câu chuyện để đắm mình đến những ý tưởng để mang theo." />
-    <div className="catalog-toolbar"><SearchBar value={searchText} onChange={(e) => setSearchText(e.target.value)} onSubmit={submit} /><div className="catalog-toolbar-actions"><button className="filter-toggle button button-outline" onClick={() => setFiltersOpen(true)}>Bộ lọc</button><label className="sort-control"><span>Sắp xếp</span><select aria-label="Sắp xếp sách" value={sort} onChange={(e) => setParams((p) => { const n = new URLSearchParams(p); n.set('sort', e.target.value); n.delete('page'); return n; })}><option value="newest">Mới nhất</option><option value="price_asc">Giá thấp đến cao</option><option value="price_desc">Giá cao đến thấp</option><option value="title_asc">Tên sách A–Z</option></select></label></div></div>
+    <div className="catalog-toolbar"><SearchBar value={searchText} onChange={(e) => setSearchText(e.target.value)} onSubmit={submit} /><div className="catalog-toolbar-actions"><button className="filter-toggle button button-outline" onClick={() => setFiltersOpen(true)}>Bộ lọc</button><label className="sort-control"><span>Sắp xếp</span><select aria-label="Sắp xếp sách" value={sort} onChange={(e) => setParams((p) => { const n = new URLSearchParams(p); n.set('sort', e.target.value); n.delete('page'); return n; })}><option value="newest">Mới nhất</option><option value="best_selling">Bán chạy</option><option value="price_asc">Giá thấp đến cao</option><option value="price_desc">Giá cao đến thấp</option><option value="title_asc">Tên sách A–Z</option></select></label></div></div>
     <div className="catalog-layout"><aside className="filter-sidebar">{filters}</aside>{filtersOpen && <div className="filter-drawer-backdrop" onClick={() => setFiltersOpen(false)}><aside className="filter-drawer" onClick={(e) => e.stopPropagation()}><div className="filter-drawer-heading"><strong>Lọc sách</strong><button onClick={() => setFiltersOpen(false)} aria-label="Đóng bộ lọc">×</button></div>{filters}</aside></div>}
     <div className="catalog-results"><p className="result-caption">{loading ? 'Đang tìm sách…' : `${data?.total ?? books.length} kết quả`}</p><PageState loading={loading} error={error} empty={!loading && !error && !books.length ? 'Không tìm thấy sách phù hợp.' : null}>{books.length > 0 && <BookGrid books={books} />}</PageState>
       {(Number(data?.totalPages) > 1 || page > 1) && <nav className="pagination" aria-label="Phân trang"><button disabled={page <= 1} onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set('page', String(page - 1)); return n; })}>← Trước</button><span>Trang {page}{data?.totalPages ? ` / ${data.totalPages}` : ''}</span><button disabled={data?.totalPages ? page >= Number(data.totalPages) : books.length < 12} onClick={() => setParams((p) => { const n = new URLSearchParams(p); n.set('page', String(page + 1)); return n; })}>Tiếp →</button></nav>}
@@ -242,8 +283,18 @@ export function Checkout() {
 }
 
 export function OrderSuccess() {
-  const order = useLocation().state?.order;
-  return <div className="shell page-shell"><div className="success-card"><span className="success-icon"><Check size={28} /></span><p className="eyebrow">ĐẶT HÀNG THÀNH CÔNG</p><h1>Cảm ơn bạn đã chọn BookShop.</h1><p>Đơn hàng đã được gửi đến hệ thống. Bạn có thể theo dõi trạng thái trong lịch sử đơn hàng.</p>{order?.orderNumber && <p className="order-number">Mã đơn hàng <strong>{order.orderNumber}</strong></p>}<div className="hero-actions"><Link className="button button-primary" to={order?.id ? `/orders/${order.id}` : '/orders'}>Theo dõi đơn hàng <ArrowRight size={17} /></Link><Link className="text-link" to="/books">Tiếp tục khám phá</Link></div></div></div>;
+  const { orderId } = useParams();
+  const stateOrder = useLocation().state?.order;
+  const requestedOrderId = orderId || stateOrder?.id;
+  const load = useCallback(() => {
+    if (!requestedOrderId) return Promise.resolve({ data: null });
+    if (stateOrder?.id === requestedOrderId) return Promise.resolve({ data: stateOrder });
+    return orderService.get(requestedOrderId);
+  }, [requestedOrderId, stateOrder]);
+  const { data, loading, error } = useApi(load, [requestedOrderId, stateOrder]);
+  const order = data?.order ?? data;
+
+  return <div className="shell page-shell"><PageState loading={loading} error={error} empty={!loading && !error && !order ? 'Không tìm thấy đơn hàng. Hãy mở lịch sử đơn hàng để tra cứu.' : null}>{order && <div className="success-card"><span className="success-icon"><Check size={28} /></span><p className="eyebrow">ĐƠN HÀNG ĐÃ ĐƯỢC TẠO</p><h1>Cảm ơn bạn đã chọn BookShop.</h1><p>Đơn hàng đã được ghi nhận. Bạn có thể theo dõi giao hàng và tình trạng thanh toán trong chi tiết đơn.</p>{order.orderNumber && <p className="order-number">Mã đơn hàng <strong>{order.orderNumber}</strong></p>}<p className="order-number">Thanh toán <strong>{order.paymentStatus || 'Đang chờ xác nhận'}</strong></p><div className="hero-actions"><Link className="button button-primary" to={order.id ? `/orders/${order.id}` : '/orders'}>Theo dõi đơn hàng <ArrowRight size={17} /></Link><Link className="text-link" to="/books">Tiếp tục khám phá</Link></div></div>}</PageState>{!loading && !order && <p className="form-feedback"><Link to="/orders">Xem lịch sử đơn hàng</Link></p>}</div>;
 }
 
 export function Orders() {
@@ -296,16 +347,17 @@ export function Reviews() {
   const [form, setForm] = useState({ bookId: '', rating: 5, comment: '' });
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
   const reviews = asList(data);
   async function submit(event) {
-    event.preventDefault(); setBusy(true); setMessage('');
-    try { await reviewService.create({ ...form, rating: Number(form.rating) }); setMessage('Đánh giá đã được gửi.'); setForm({ bookId: '', rating: 5, comment: '' }); await reload(); }
-    catch (requestError) { setMessage(getErrorMessage(requestError)); }
+    event.preventDefault(); if (busy) return; setBusy(true); setMessage(''); setSubmitError(false);
+    try { await reviewService.create({ ...form, rating: Number(form.rating) }); setMessage('Đánh giá đã được gửi và đang chờ quản trị viên duyệt.'); setForm({ bookId: '', rating: 5, comment: '' }); await reload(); }
+    catch (requestError) { setSubmitError(true); setMessage(getErrorMessage(requestError)); }
     finally { setBusy(false); }
   }
   return <div className="shell page-shell"><ScreenTitle kicker="CỘNG ĐỒNG ĐỌC SÁCH" title="Đánh giá của bạn" description="Chia sẻ cảm nhận để giúp người đọc khác tìm được cuốn sách phù hợp." />
-    <div className="review-layout"><form className="panel form-stack" onSubmit={submit}><h2>Viết đánh giá</h2><label>Mã sách<input required value={form.bookId} onChange={(e) => setForm({ ...form, bookId: e.target.value })} placeholder="Nhập mã sách" /></label><label>Điểm đánh giá<select value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })}>{[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} sao</option>)}</select></label><label>Cảm nhận<textarea maxLength="5000" rows="4" value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} /></label>{message && <p className="form-feedback">{message}</p>}<button className="button button-primary" disabled={busy}>{busy ? 'Đang gửi…' : 'Gửi đánh giá'} <ArrowRight size={16} /></button></form>
-      <div><h2>Lịch sử đánh giá</h2><PageState loading={loading} error={error} empty={!loading && !error && !reviews.length ? 'Bạn chưa gửi đánh giá nào.' : null}>{reviews.map((review) => <article className="review-card" key={review.id}><div className="review-stars">{Array.from({ length: Number(review.rating) || 0 }, (_, i) => <Star key={i} size={15} fill="currentColor" />)}</div><strong>{review.book?.title || review.bookId}</strong><p>{review.comment}</p><span className="muted">{formatDate(review.createdAt)}</span></article>)}</PageState></div></div>
+    <div className="review-layout"><form className="panel form-stack" onSubmit={submit}><h2>Viết đánh giá</h2><label>Mã sách hoặc ISBN<input required maxLength={280} value={form.bookId} onChange={(e) => setForm({ ...form, bookId: e.target.value })} placeholder="Ví dụ: 978-3-8365-3920-3" /></label><p className="muted">Nhập ISBN trên trang chi tiết sách. Bạn có thể đánh giá sau khi đơn hàng đã được giao. Đánh giá mới hoặc gửi lại chỉ được công khai và tính điểm sao sau khi quản trị viên duyệt.</p><label>Điểm đánh giá<select value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })}>{[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} sao</option>)}</select></label><label>Cảm nhận<textarea maxLength="5000" rows="4" value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} /></label>{message && <p className={submitError ? "inline-error" : "form-feedback"} role={submitError ? "alert" : "status"}>{message}</p>}<button className="button button-primary" disabled={busy}>{busy ? 'Đang gửi…' : 'Gửi đánh giá'} <ArrowRight size={16} /></button></form>
+      <div><h2>Lịch sử đánh giá</h2><PageState loading={loading} error={error} empty={!loading && !error && !reviews.length ? 'Bạn chưa gửi đánh giá nào.' : null}>{reviews.map((review) => <article className="review-card" key={review.id}><div className="review-stars">{Array.from({ length: Number(review.rating) || 0 }, (_, i) => <Star key={i} size={15} fill="currentColor" />)}</div><StatusBadge value={review.status} resource="reviews" /><strong>{review.book?.title || review.bookId}</strong><p>{review.comment}</p><span className="muted">{formatDate(review.createdAt)}</span></article>)}</PageState></div></div>
   </div>;
 }
 

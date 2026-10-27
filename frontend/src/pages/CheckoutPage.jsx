@@ -39,7 +39,8 @@ export default function CheckoutPage() {
     event.preventDefault(); setBusy(true); setErrorMessage('');
     try {
       const order = unwrapData(await orderService.checkout({ shippingAddress: address, paymentMethod, promotionCode: promotion?.code }));
-      navigate('/order-success', { replace: true, state: { order } });
+      if (!order?.id) throw new Error('Đơn hàng đã gửi nhưng phản hồi không có mã đơn. Hãy kiểm tra lịch sử đơn hàng.');
+      navigate(`/order-success/${encodeURIComponent(order.id)}`, { replace: true, state: { order } });
     } catch (requestError) { setErrorMessage(getErrorMessage(requestError)); }
     finally { setBusy(false); }
   }
@@ -52,7 +53,7 @@ export default function CheckoutPage() {
         <section className="checkout-section"><p className="checkout-step">03</p><div><h2>Mã ưu đãi</h2><div className="promotion-input"><span className="promo-icon"><Tag size={16} /></span><input value={promotionCode} onChange={(e) => { setPromotionCode(e.target.value); setPromotion(null); setPromotionMessage(''); }} placeholder="Nhập mã khuyến mãi" /><button className="button button-outline" type="button" disabled={!promotionCode.trim()} onClick={applyPromotion}>Áp dụng</button></div>{promotionMessage && <p className={promotion ? 'inline-success' : 'inline-error'}>{promotionMessage}</p>}</div></section>
         {errorMessage && <div className="inline-error" role="alert">{errorMessage}</div>}
         <button className="button button-primary checkout-confirm" disabled={busy}>{busy ? 'Đang xác nhận…' : 'Xác nhận đặt hàng'} <ArrowRight size={17} /></button>
-      </form><aside className="order-summary checkout-summary"><p className="eyebrow">ĐƠN HÀNG CỦA BẠN</p>{items.map((item) => <div className="checkout-summary-item" key={item.id}><div><strong>{item.book?.title || 'Sách'}</strong><span>{item.book?.author} · SL {item.quantity}</span></div><strong>{formatCurrency(getEffectiveBookPrice(item.book) * Number(item.quantity))}</strong></div>)}<div className="price-breakdown"><div><span>Tạm tính ước tính</span><strong>{formatCurrency(estimate)}</strong></div>{promotion && <div><span>Ưu đãi</span><strong>{promotion.code}</strong></div>}<div><span>Phí giao hàng</span><strong>Tính bởi backend</strong></div><div className="summary-total"><span>Tổng thanh toán</span><strong>Backend xác nhận</strong></div></div><p className="summary-note">Giá sản phẩm trong trang này chỉ để tham khảo. Máy chủ sẽ tính lại toàn bộ đơn hàng.</p></aside></div>}
+      </form><aside className="order-summary checkout-summary"><p className="eyebrow">ĐƠN HÀNG CỦA BẠN</p>{items.map((item) => <div className="checkout-summary-item" key={item.id}><div><strong>{item.book?.title || 'Sách'}</strong><span>{item.book?.author} · SL {item.quantity}</span></div><strong>{formatCurrency(getEffectiveBookPrice(item.book) * Number(item.quantity))}</strong></div>)}<div className="price-breakdown"><div><span>Tạm tính ước tính</span><strong>{formatCurrency(estimate)}</strong></div>{promotion && <div><span>Ưu đãi</span><strong>{promotion.code}</strong></div>}<div><span>Phí giao hàng</span><strong>Tính khi đặt hàng</strong></div><div className="summary-total"><span>Tổng thanh toán</span><strong>Xác nhận khi đặt hàng</strong></div></div><p className="summary-note">Giá sản phẩm trong trang này chỉ để tham khảo. Máy chủ sẽ tính lại toàn bộ đơn hàng.</p></aside></div>}
     </PageState></div>;
 }
 

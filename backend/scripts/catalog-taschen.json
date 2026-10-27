@@ -1,0 +1,157 @@
+{
+  "notice": "Local development catalogue. VND prices use a fixed illustrative multiplier of 28000 on archived source prices, not a current FX rate or official price. Stock 12 is initial demo inventory, not TASCHEN inventory. Descriptions are original Vietnamese summaries. Contributors include authors/editors as credited in source metadata.",
+  "categories": [
+    {
+      "slug": "art",
+      "name": "Nghệ thuật"
+    },
+    {
+      "slug": "architecture-design",
+      "name": "Kiến trúc & Thiết kế"
+    },
+    {
+      "slug": "photography",
+      "name": "Nhiếp ảnh"
+    },
+    {
+      "slug": "film",
+      "name": "Điện ảnh"
+    },
+    {
+      "slug": "fashion",
+      "name": "Thời trang"
+    }
+  ],
+  "books": [
+    {
+      "title": "Japanese Woodblock Prints",
+      "slug": "japanese-woodblock-prints",
+      "author": "Andreas Marks",
+      "isbn": "978-3-8365-8552-1",
+      "description": "Khám phá nghệ thuật tranh khắc gỗ Nhật Bản qua tuyển tập do Andreas Marks biên soạn. Một hành trình thị giác dành cho người yêu đồ họa và văn hóa Nhật.",
+      "image": "/uploads/books/taschen-40100.webp",
+      "price": 560000,
+      "stock": 12,
+      "categorySlug": "art",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/art/40100/japanese-woodblock-prints/"
+    },
+    {
+      "title": "HR Giger. 45th Ed.",
+      "slug": "hr-giger-45th-ed",
+      "author": "Andreas J. Hirsch, Hans Werner Holzwarth",
+      "isbn": "978-3-8365-8702-0",
+      "description": "Thế giới nghệ thuật của HR Giger, nơi cơ thể và máy móc hòa vào những hình ảnh khoa học viễn tưởng đầy ám ảnh.",
+      "image": "/uploads/books/taschen-40700.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "art",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/art/40700/hr-giger-45th-ed/"
+    },
+    {
+      "title": "Frédéric Chaubin. CCCP. Cosmic Communist Constructions Photographed. 45th Ed.",
+      "slug": "frederic-chaubin-cccp-cosmic-communist-constructions-photographed-45th-ed",
+      "author": "Frédéric Chaubin",
+      "isbn": "978-3-8365-8779-2",
+      "description": "Frédéric Chaubin ghi lại 90 công trình tại 14 nước cộng hòa thuộc Liên Xô cũ, mở ra góc nhìn khác về kiến trúc giai đoạn 1970–1990.",
+      "image": "/uploads/books/taschen-40706.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "architecture-design",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/architecture-design/40706/frederic-chaubin-cccp-cosmic-communist-constructions-photographed-45th-ed/"
+    },
+    {
+      "title": "Case Study Houses. The Complete CSH Program 1945-1966. 45th Ed.",
+      "slug": "case-study-houses-the-complete-csh-program-1945-1966-45th-ed",
+      "author": "Elizabeth A. T. Smith, Peter Gössel",
+      "isbn": "978-3-8365-8787-7",
+      "description": "Tìm hiểu chương trình Case Study Houses 1945–1966 và những ý tưởng nhà ở hiện đại đã định hình kiến trúc California.",
+      "image": "/uploads/books/taschen-40709.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "architecture-design",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/architecture-design/40709/case-study-houses-the-complete-csh-program-1945-1966-45th-ed/"
+    },
+    {
+      "title": "Mario Testino. SIR. 45th Ed.",
+      "slug": "mario-testino-sir-45th-ed",
+      "author": "Pierre Borhan, Patrick Kinmonth",
+      "isbn": "978-3-8365-8814-0",
+      "description": "Tuyển tập hơn 300 bức ảnh của Mario Testino khám phá phong cách, chân dung và hình ảnh nam giới qua nhiếp ảnh.",
+      "image": "/uploads/books/taschen-40720.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "photography",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/photography/40720/mario-testino-sir-45th-ed/"
+    },
+    {
+      "title": "The Polaroid Book. 45th Ed.",
+      "slug": "the-polaroid-book-45th-ed",
+      "author": "Barbara Hitchcock, Steve Crist",
+      "isbn": "978-3-8365-9199-7",
+      "description": "Một chuyến đi vào kho lưu trữ Polaroid, tôn vinh sức sáng tạo của nhiếp ảnh lấy liền và những khuôn hình viền trắng đặc trưng.",
+      "image": "/uploads/books/taschen-40752.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "photography",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/photography/40752/the-polaroid-book-45th-ed/"
+    },
+    {
+      "title": "David Bowie. The Man Who Fell to Earth. 40th Ed.",
+      "slug": "david-bowie-the-man-who-fell-to-earth-40th-ed",
+      "author": "Paul Duncan",
+      "isbn": "978-3-8365-9316-8",
+      "description": "Khám phá bộ phim The Man Who Fell to Earth qua hình ảnh và câu chuyện điện ảnh gắn với vai diễn của David Bowie.",
+      "image": "/uploads/books/taschen-40756.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "film",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/film/40756/david-bowie-the-man-who-fell-to-earth-40th-ed/"
+    },
+    {
+      "title": "The Star Wars Archives. 1999–2005. 45th Ed.",
+      "slug": "the-star-wars-archives-1999-2005-45th-ed",
+      "author": "Paul Duncan",
+      "isbn": "978-3-8365-9324-3",
+      "description": "Tư liệu về thế giới Star Wars giai đoạn 1999–2005, từ hành trình của Anakin Skywalker đến những bước tiến trong kỹ xảo điện ảnh.",
+      "image": "/uploads/books/taschen-40758.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "film",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/film/40758/the-star-wars-archives-1999-2005-45th-ed/"
+    },
+    {
+      "title": "Valentino. A Grand Italian Epic",
+      "slug": "valentino-a-grand-italian-epic",
+      "author": "Matt Tyrnauer, Suzy Menkes, Armando Chitolina",
+      "isbn": "978-3-7544-0069-2",
+      "description": "Hành trình sáng tạo của Valentino qua thế giới thời trang cao cấp Italy, những thiết kế và phong cách đặc trưng của nhà mốt.",
+      "image": "/uploads/books/taschen-41425.webp",
+      "price": 3500000,
+      "stock": 12,
+      "categorySlug": "fashion",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/fashion/41425/valentino-a-grand-italian-epic/"
+    },
+    {
+      "title": "Pucci. Fashion Story. 45th Ed.",
+      "slug": "pucci-fashion-story-45th-ed",
+      "author": "Vanessa Friedman, Armando Chitolina",
+      "isbn": "978-3-7544-0020-3",
+      "description": "Câu chuyện của Emilio Pucci với những họa tiết, sắc màu và thiết kế làm nên bản sắc riêng trong lịch sử thời trang Italy.",
+      "image": "/uploads/books/taschen-42352.webp",
+      "price": 840000,
+      "stock": 12,
+      "categorySlug": "fashion",
+      "publisher": "TASCHEN",
+      "source": "https://www.taschen.com/en/books/fashion/42352/pucci-fashion-story-45th-ed/"
+    }
+  ]
+}

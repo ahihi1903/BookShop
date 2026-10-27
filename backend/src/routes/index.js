@@ -10,6 +10,7 @@ import adminRoutes from './admin.routes.js';
 import profileRoutes from './profile.routes.js';
 import promotionRoutes from './promotion.routes.js';
 import newsletterRoutes from './newsletter.routes.js';
+import advisorRoutes from './advisor.routes.js';
 
 const router = Router();
 router.use('/auth', authRoutes);
@@ -23,5 +24,6 @@ router.use('/membership', membershipRoutes);
 router.use('/admin', adminRoutes);
 router.use('/promotions', promotionRoutes);
 router.use('/newsletter', newsletterRoutes);
+router.use('/advisor', advisorRoutes);
 
 export default router;

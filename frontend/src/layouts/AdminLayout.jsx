@@ -1,7 +1,8 @@
 import { BarChart3, BookOpen, Boxes, CreditCard, Gift, LayoutDashboard, LogOut, Menu, MessageSquareText, PackageCheck, Users, X } from 'lucide-react';
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 
 const navItems = [
   ['/admin', 'Tổng quan', LayoutDashboard, true],
@@ -24,13 +25,13 @@ export default function AdminLayout() {
   return (
     <div className="admin-shell">
       <aside className={`admin-sidebar ${open ? 'sidebar-open' : ''}`}>
-        <div className="admin-brand"><span className="brand-mark"><BookOpen size={19} /></span><span>BOOKSHOP <small>ADMIN</small></span><button className="sidebar-close" onClick={() => setOpen(false)} aria-label="Đóng"><X size={18} /></button></div>
+        <div className="admin-brand"><Link className="admin-brand-link" to="/" onClick={() => setOpen(false)} aria-label="BookShop - Trang chủ"><span className="brand-mark"><BookOpen size={19} /></span><span>BOOKSHOP <small>ADMIN</small></span></Link><button className="sidebar-close" onClick={() => setOpen(false)} aria-label="Đóng"><X size={18} /></button></div>
         <p className="sidebar-caption">QUẢN LÝ CỬA HÀNG</p>
         <nav>{navItems.map(([to, label, Icon, end]) => <NavLink key={to} to={to} end={end} onClick={() => setOpen(false)}><Icon size={18} /><span>{label}</span></NavLink>)}</nav>
         <div className="sidebar-user"><span className="avatar">{user?.name?.slice(0, 1) || 'A'}</span><span><strong>{user?.name || 'Quản trị viên'}</strong><small>Quản trị viên</small></span><button className="icon-button" aria-label="Đăng xuất" onClick={() => { logout(); navigate('/login'); }}><LogOut size={17} /></button></div>
       </aside>
       <div className="admin-main-column">
-        <header className="admin-topbar"><button className="mobile-menu icon-button" onClick={() => setOpen(!open)} aria-label="Mở menu"><Menu /></button><div><span className="admin-top-kicker">BOOKSHOP / ADMIN</span><strong>Không gian quản trị</strong></div><span className="admin-top-user">Xin chào, {user?.name}</span></header>
+        <header className="admin-topbar"><button className="mobile-menu icon-button" onClick={() => setOpen(!open)} aria-label="Mở menu"><Menu /></button><div><span className="admin-top-kicker">BOOKSHOP / ADMIN</span><strong>Không gian quản trị</strong></div><span className="admin-top-user">Xin chào, {user?.name}</span><ThemeToggle /></header>
         <main className="admin-content"><Outlet /></main>
       </div>
       {open && <button className="sidebar-scrim" aria-label="Đóng menu" onClick={() => setOpen(false)} />}

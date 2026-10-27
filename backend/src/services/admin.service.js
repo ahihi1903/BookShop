@@ -21,6 +21,15 @@ function containsFilter(value, fields) {
   return q ? { OR: fields.map((field) => ({ [field]: { contains: q } })) } : {};
 }
 
+async function assertActiveBookCategory(categoryId) {
+  const category = await adminRepository.findCategory(categoryId);
+  if (!category) throw new AppError('Danh mục sách không tồn tại.', 404, 'CATEGORY_NOT_FOUND');
+  if (category.status !== 'ACTIVE') {
+    throw new AppError('Danh mục đã ngừng hoạt động. Hãy chọn một danh mục đang hoạt động.', 409, 'CATEGORY_INACTIVE');
+  }
+  return category;
+}
+
 function bookOrderBy(sort) {
   if (sort === 'price_asc') return { price: 'asc' };
   if (sort === 'price_desc') return { price: 'desc' };
@@ -31,10 +40,16 @@ function bookOrderBy(sort) {
 
 export const adminService = {
   async dashboard() {
-    const [[revenue, orders, customers, books], lowStock, bestSellerGroups] = await Promise.all([
+    const now = new Date();
+    const since = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1));
+    const [[revenue, orders, customers, books], lowStock, bestSellerGroups, trend, statuses, categories, lowStockCount] = await Promise.all([
       adminRepository.dashboardCounts(),
       adminRepository.lowStockBooks(LOW_STOCK_THRESHOLD),
       adminRepository.bestSellerItems(5),
+      adminRepository.revenueReportSince(since),
+      adminRepository.orderStatusCounts(),
+      adminRepository.categoryDistribution(),
+      adminRepository.lowStockCount(LOW_STOCK_THRESHOLD),
     ]);
     const bestSellerBooks = await adminRepository.findBooksByIds(bestSellerGroups.map((item) => item.bookId));
     const bookById = new Map(bestSellerBooks.map((book) => [book.id, book]));
@@ -50,11 +65,18 @@ export const adminService = {
         orders,
         customers,
         books,
-        lowStock: lowStock.length,
+        lowStock: lowStockCount,
       },
       lowStock,
       bestSellers,
-      revenueTrend: [],
+      revenueTrend: Array.from({ length: 12 }, (_, index) => {
+        const period = new Date(Date.UTC(since.getUTCFullYear(), since.getUTCMonth() + index, 1)).toISOString().slice(0, 7);
+        const row = trend.find((item) => item.period === period);
+        return { period, revenue: Number(row?.revenue ?? 0), orders: Number(row?.orders ?? 0) };
+      }),
+      orderStatuses: statuses.map((row) => ({ status: row.orderStatus, count: row._count._all })),
+      categoryDistribution: categories.map((row) => ({ id: row.id, name: row.name, count: row._count.books })),
+      generatedAt: now.toISOString(),
     };
   },
 
@@ -87,14 +109,20 @@ export const adminService = {
   },
 
   async createBook(payload) {
+    await assertActiveBookCategory(payload.categoryId);
     const data = { ...payload, slug: payload.slug ? slugify(payload.slug) : slugify(payload.title) };
     return adminRepository.createBook(data);
   },
 
   async updateBook(id, payload) {
     const data = { ...payload };
+    const existing = await this.getBook(id);
+    if (data.categoryId && data.categoryId !== existing.categoryId) {
+      await assertActiveBookCategory(data.categoryId);
+    } else if (data.status === 'ACTIVE' && existing.category.status !== 'ACTIVE') {
+      await assertActiveBookCategory(existing.categoryId);
+    }
     if (Object.hasOwn(data, 'discountPrice') || Object.hasOwn(data, 'price')) {
-      const existing = await this.getBook(id);
       const regularPrice = Number(data.price ?? existing.price);
       const discountPrice = data.discountPrice === undefined ? Number(existing.discountPrice) : Number(data.discountPrice);
       if (!Number.isFinite(regularPrice) || (Number.isFinite(discountPrice) && discountPrice > 0 && discountPrice >= regularPrice)) {
@@ -108,7 +136,28 @@ export const adminService = {
 
   async deleteBook(id) {
     await this.getBook(id);
-    return adminRepository.deleteBook(id);
+    const references = await adminRepository.countBookReferences(id);
+    const blockers = [
+      [references.orderItems, 'đơn hàng'],
+      [references.reviews, 'đánh giá'],
+      [references.cartItems, 'giỏ hàng'],
+      [references.favorites, 'danh sách yêu thích'],
+    ].filter(([count]) => count > 0).map(([, label]) => label);
+    if (blockers.length) {
+      throw new AppError(
+        `Không thể xóa sách vì đang được tham chiếu bởi ${blockers.join(', ')}. Hãy dùng chức năng Ẩn sách để giữ nguyên dữ liệu liên quan.`,
+        409,
+        'BOOK_IN_USE',
+      );
+    }
+    try {
+      return await adminRepository.deleteBook(id);
+    } catch (error) {
+      if (error?.code === 'P2003') {
+        throw new AppError('Không thể xóa sách vì dữ liệu khác đang tham chiếu. Hãy dùng chức năng Ẩn sách.', 409, 'BOOK_IN_USE');
+      }
+      throw error;
+    }
   },
 
   async listCategories(query) {
@@ -132,7 +181,22 @@ export const adminService = {
   async deleteCategory(id) {
     const category = await adminRepository.findCategory(id);
     if (!category) throw new AppError('Category was not found', 404, 'CATEGORY_NOT_FOUND');
-    return adminRepository.deleteCategory(id);
+    const bookCount = await adminRepository.countCategoryBooks(id);
+    if (bookCount > 0) {
+      throw new AppError(
+        `Không thể xóa danh mục vì đang có ${bookCount} sách thuộc danh mục này. Hãy dùng chức năng Ẩn danh mục để giữ nguyên dữ liệu sách.`,
+        409,
+        'CATEGORY_IN_USE',
+      );
+    }
+    try {
+      return await adminRepository.deleteCategory(id);
+    } catch (error) {
+      if (error?.code === 'P2003') {
+        throw new AppError('Không thể xóa danh mục vì dữ liệu khác đang tham chiếu. Hãy dùng chức năng Ẩn danh mục.', 409, 'CATEGORY_IN_USE');
+      }
+      throw error;
+    }
   },
 
   async listOrders(query) {
@@ -250,12 +314,20 @@ export const adminService = {
   async updateMembership(id, payload) {
     const membership = await adminRepository.findMembership(id);
     if (!membership) throw new AppError('Membership tier was not found', 404, 'MEMBERSHIP_NOT_FOUND');
+    if (payload.level && payload.level !== membership.level) {
+      if (membership.level === 'BRONZE') throw new AppError('The BRONZE level code is reserved as the membership fallback', 409, 'MEMBERSHIP_BASE_TIER_REQUIRED');
+      const assignedCustomers = await adminRepository.countCustomersWithMembershipLevel(membership.level);
+      if (assignedCustomers > 0) throw new AppError('Cannot change the level code while customers are assigned to this tier', 409, 'MEMBERSHIP_TIER_IN_USE');
+    }
     return adminRepository.updateMembership(id, payload);
   },
 
   async deleteMembership(id) {
     const membership = await adminRepository.findMembership(id);
     if (!membership) throw new AppError('Membership tier was not found', 404, 'MEMBERSHIP_NOT_FOUND');
+    if (membership.level === 'BRONZE') throw new AppError('The BRONZE level must remain active as the membership fallback', 409, 'MEMBERSHIP_BASE_TIER_REQUIRED');
+    const assignedCustomers = await adminRepository.countCustomersWithMembershipLevel(membership.level);
+    if (assignedCustomers > 0) throw new AppError('Cannot deactivate a membership tier currently assigned to customers', 409, 'MEMBERSHIP_TIER_IN_USE');
     return adminRepository.updateMembership(id, { status: 'INACTIVE' });
   },
 

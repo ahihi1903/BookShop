@@ -1,0 +1,405 @@
+{
+  "mode": "applied",
+  "added": 65,
+  "totalBooks": 75,
+  "byCategory": {
+    "art": 13,
+    "architecture-design": 13,
+    "photography": 13,
+    "film": 13,
+    "fashion": 13
+  },
+  "backup": "/F:/Thuc_Tap_CSN/backend/.local-backups/catalog-before-expansion-1793043788992.json",
+  "created": [
+    {
+      "id": "cmvpnz64p0001voco5rrw9mr5",
+      "title": "Hieronymus Bosch. The Complete Works. 45th Ed.",
+      "isbn": "978-3-8365-8786-0",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz64u0003vocorebtsyf7",
+      "title": "Vermeer. The Complete Works. 45th Ed.",
+      "isbn": "978-3-8365-8792-1",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz64x0005voco05ri13ys",
+      "title": "Caravaggio. The Complete Works. 45th Ed.",
+      "isbn": "978-3-8365-8796-9",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz64z0007vocosscgd8oj",
+      "title": "Matisse. Cut-outs. 45th Ed.",
+      "isbn": "978-3-8365-8919-2",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz6530009voco6khazdb6",
+      "title": "Rembrandt. The Paintings. 45th Ed.",
+      "isbn": "978-3-8365-9175-1",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz655000bvoco0x1jv97c",
+      "title": "Renoir. 45th Ed.",
+      "isbn": "978-3-8365-9209-3",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz658000dvocofr0f4hj2",
+      "title": "Masterpieces of Fantasy Art. 45th Ed.",
+      "isbn": "978-3-8365-9362-5",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz65a000fvocogix01jae",
+      "title": "Frida Kahlo. 45th Ed.",
+      "isbn": "978-3-8365-9485-1",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz65c000hvocov2apha7r",
+      "title": "Hiroshige & Eisen. The Sixty-Nine Stations along the Kisokaido. 40th Ed.",
+      "isbn": "978-3-8365-9487-5",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz65e000jvoco7s0dfit1",
+      "title": "Walton Ford. Pancha Tantra. 40th Ed.",
+      "isbn": "978-3-8365-9574-2",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz65h000lvoco2ub0smcz",
+      "title": "Charlotte Salomon. Life? or Theatre?",
+      "isbn": "978-3-8365-9865-1",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz65k000nvocof3g6m8sf",
+      "title": "David Hockney. A Chronology. 45th Ed.",
+      "isbn": "978-3-8365-8249-0",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz65m000pvoco9gbw2mgs",
+      "title": "Max Ernst",
+      "isbn": "978-3-8365-9529-2",
+      "categorySlug": "art"
+    },
+    {
+      "id": "cmvpnz65o000rvocoragbu64j",
+      "title": "BIG. Yes is More. An Archicomic on Architectural Evolution",
+      "isbn": "978-3-8365-2010-2",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz65q000tvococr3u1qlj",
+      "title": "Frédéric Chaubin. Stone Age. 45th Ed.",
+      "isbn": "978-3-7544-0125-5",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz65w000vvocoo4qdx9ch",
+      "title": "Living in Japan. 45th Ed.",
+      "isbn": "978-3-8365-8843-0",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz65y000xvocohjf4tp9i",
+      "title": "Living in Mexico. 45th Ed.",
+      "isbn": "978-3-8365-8845-4",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz660000zvocootvbao08",
+      "title": "Living in Bali. 45th Ed.",
+      "isbn": "978-3-8365-9001-3",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz6620011voco1fo3wexp",
+      "title": "Living in Morocco. 45th Ed.",
+      "isbn": "978-3-8365-9003-7",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz6630013vocoqv3hqnp8",
+      "title": "Living in Tuscany. 45th Ed.",
+      "isbn": "978-3-8365-9442-4",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz6650015voco9faje2r5",
+      "title": "Contemporary Brick Buildings",
+      "isbn": "978-3-8365-9259-8",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz6670017vocoamdixprd",
+      "title": "Tree Houses. 45th Ed.",
+      "isbn": "978-3-8365-9339-7",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz66c0019vocozbxk5e0q",
+      "title": "Zaha Hadid. Complete Works 1979–Today. 45th Ed.",
+      "isbn": "978-3-8365-9349-6",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz66f001bvococbqine28",
+      "title": "Cabins. 45th Ed.",
+      "isbn": "978-3-8365-9375-5",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz66h001dvocomlyny9i0",
+      "title": "Living in Provence. 45th Ed.",
+      "isbn": "978-3-8365-9440-0",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz66j001fvocoo9y9exfd",
+      "title": "Contemporary Japanese Architecture. 45th Ed.",
+      "isbn": "978-3-8365-9572-8",
+      "categorySlug": "architecture-design"
+    },
+    {
+      "id": "cmvpnz66l001hvoco0ptzf3b6",
+      "title": "MaRIO DE JANEIRO Testino",
+      "isbn": "978-3-7544-0156-9",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz66n001jvococg0u1a4u",
+      "title": "Peter Lindbergh. Azzedine Alaïa",
+      "isbn": "978-3-7544-0422-5",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz66p001lvocof5vxg0a5",
+      "title": "Mario Testino. Ciao",
+      "isbn": "978-3-7544-0502-4",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz66r001nvocoojhd04ke",
+      "title": "The NASA Archives. 45th Ed.",
+      "isbn": "978-3-8365-8808-9",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz66t001pvocouoqof91v",
+      "title": "America 1900. A Portrait in Color. 45th Ed.",
+      "isbn": "978-3-8365-9361-8",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz66v001rvocotciqygne",
+      "title": "Massimo Listri. Cabinet of Curiosities. 45th Ed.",
+      "isbn": "978-3-8365-9378-6",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz66x001tvocom3n4g9g6",
+      "title": "Massimo Listri. The World’s Most Beautiful Libraries. 45th Ed.",
+      "isbn": "978-3-8365-9381-6",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz66z001vvoco64fifnmw",
+      "title": "Kubrick Photographs",
+      "isbn": "978-3-8365-9542-1",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz671001xvoco8eocffgj",
+      "title": "Muybridge. The Human and Animal Locomotion Photographs. 45th Ed.",
+      "isbn": "978-3-8365-9545-2",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz673001zvoco3zcnv605",
+      "title": "Peter Lindbergh. On Fashion Photography. 45th Ed.",
+      "isbn": "978-3-8365-8250-6",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz6750021voco7elv62v4",
+      "title": "Wolfgang Tillmans. four books. 45th Ed.",
+      "isbn": "978-3-8365-8253-7",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz67a0023vocowfm9mk2v",
+      "title": "Italy 1900. A Portrait in Color",
+      "isbn": "978-3-8365-9197-3",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz67c0025vocojfu2jq7q",
+      "title": "Bettina Rheims. 40th",
+      "isbn": "978-3-8365-9711-1",
+      "categorySlug": "photography"
+    },
+    {
+      "id": "cmvpnz67e0027vocoag8tvbh9",
+      "title": "The James Bond Archives. The Complete Films",
+      "isbn": "978-3-7544-0065-4",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67h0029vocoiwb5qwqy",
+      "title": "The Star Wars Archives. 1977-1983",
+      "isbn": "978-3-8365-9819-4",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67l002bvoco96yymwas",
+      "title": "Film Noir. 100 All-Time Favorites",
+      "isbn": "978-3-7544-0408-9",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67n002dvocosagco25c",
+      "title": "Film Posters of the Russian Avant-Garde. 45th Ed.",
+      "isbn": "978-3-7544-0554-3",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67p002fvocow923lqrg",
+      "title": "The Making of Stanley Kubrick's '2001: A Space Odyssey'. 45th Ed.",
+      "isbn": "978-3-7544-0659-5",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67r002hvocomb2710v7",
+      "title": "The Walt Disney Film Archives. The Animated Movies 1921–1968. 45th Ed.",
+      "isbn": "978-3-8365-8086-1",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67t002jvoco4a4qovv5",
+      "title": "Steve Schapiro. The Godfather Family Album. 45th Ed.",
+      "isbn": "978-3-8365-8064-9",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67v002lvocod9x08hjy",
+      "title": "The Charlie Chaplin Archives",
+      "isbn": "978-3-8365-8072-4",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67x002nvocolyuf9uaz",
+      "title": "Bob Willoughby. Audrey Hepburn. Photographs 1953–1966",
+      "isbn": "978-3-8365-9709-8",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz67z002pvocomvizibvv",
+      "title": "The Star Wars Archives. Episodes I-VI",
+      "isbn": "978-3-7544-0036-4",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz681002rvocoza58amyh",
+      "title": "100 Movies of the 1950s",
+      "isbn": "978-3-8365-8719-8",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz683002tvocoi3b5b5jq",
+      "title": "100 Movies of the 1960s",
+      "isbn": "978-3-8365-8723-5",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz685002vvocounh5o2yy",
+      "title": "The Star Wars Archives. 1999–2005",
+      "isbn": "978-3-8365-9823-1",
+      "categorySlug": "film"
+    },
+    {
+      "id": "cmvpnz687002xvocowxsnlcgq",
+      "title": "Fashion Designers A-Z. 45th Ed.",
+      "isbn": "978-3-8365-8756-3",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68a002zvocoqvfx7z1b",
+      "title": "Sneaker Freaker. The Ultimate Sneaker Book. 45th Ed.",
+      "isbn": "978-3-8365-9798-2",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68c0031voco08l3lkh7",
+      "title": "Shoes A-Z. 45th Ed.",
+      "isbn": "978-3-7544-0465-2",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68e0033vocoez9wtpoq",
+      "title": "Issey Miyake. 45th Ed.",
+      "isbn": "978-3-7544-0286-3",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68h0035voco33lfzk9j",
+      "title": "The Book of Printed Fabrics. 45th Ed.",
+      "isbn": "978-3-7544-0611-3",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68j0037voco2vk1lqic",
+      "title": "Fashion Designers A–Z",
+      "isbn": "978-3-8365-7882-0",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68l0039voco5jxvu4l9",
+      "title": "Fashion History. From the 18th to the 20th Century",
+      "isbn": "978-3-8365-7791-5",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68n003bvocobzd41vau",
+      "title": "20th-Century Fashion. 100 Years of Apparel Ads",
+      "isbn": "978-3-8365-2279-3",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68r003dvocop2sdfot3",
+      "title": "Costume Jewelry",
+      "isbn": "978-3-8365-8826-3",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68u003fvocoiegtruik",
+      "title": "Virgil Abloh. Nike. ICONS",
+      "isbn": "978-3-8365-8509-5",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68w003hvoco30v8dgpw",
+      "title": "Gisele Bündchen",
+      "isbn": "978-3-8365-3920-3",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz68z003jvocov3643pyu",
+      "title": "Sneaker Freaker Collectors",
+      "isbn": "978-3-8365-9629-9",
+      "categorySlug": "fashion"
+    },
+    {
+      "id": "cmvpnz693003lvocowaftudck",
+      "title": "The Book of Printed Fabrics. From the 16th century until today",
+      "isbn": "978-3-8365-6276-8",
+      "categorySlug": "fashion"
+    }
+  ]
+}

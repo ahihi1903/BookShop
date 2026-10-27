@@ -14,6 +14,10 @@ These rules are implemented in backend services and constants. The backend is au
 
 Only active books/categories appear in public catalog queries. A book discount price is used only when it is positive and lower than its regular price. Cart display computes line subtotals from the current server catalog price; cart items do not store a price snapshot.
 
+Admins hide/reactivate books by updating `Book.status`. Permanent book deletion is allowed only when no cart item, order item, review or favorite references the book; those relations use restrictive foreign keys so deletion cannot cascade into customer or order data. A book must use an active category when created or moved to a different category.
+
+Admins hide/reactivate categories by updating `Category.status`; hiding a category does not change its books. Permanent category deletion is allowed only when no books reference it. The `Book.categoryId` foreign key uses `RESTRICT`, and the admin API returns `409 CATEGORY_IN_USE` with guidance to hide the category when it still has books.
+
 ## Order and inventory flow
 
 Checkout runs in a serializable Prisma transaction:
@@ -53,7 +57,7 @@ The checkout request accepts `COD`, `BANK_TRANSFER`, `CARD` or `E_WALLET`. Check
 
 ## Membership
 
-The user record holds `points` and a `MembershipLevel` enum. Active `Membership` rows provide tier names and `minPoints` thresholds. At checkout, points are calculated as one point per 10,000 VND of final order total, rounded down, and added when the order is created (even while payment remains pending). The current level is recalculated against active thresholds. Eligible order cancellation reverses the points. `GET /api/membership/me` returns points, level, current/next tier and points remaining to next tier.
+The user record holds `points` and a membership level code string; `Membership` rows define unique level codes (up to 32 characters), names and `minPoints` thresholds. At checkout, points are calculated as one point per 10,000 VND of final order total, rounded down, and added when the order is created (even while payment remains pending). The current level is recalculated against active thresholds, with `BRONZE` as the fallback. Eligible order cancellation reverses the points. `GET /api/membership/me` returns points, level, current/next tier and points remaining to next tier. Admin may soft-deactivate an unused tier and restore it by setting `status` to `ACTIVE`; the fallback `BRONZE` tier and tiers assigned to customers cannot be deactivated. A level code cannot be changed while customers are assigned to that tier.
 
 ## Reviews
 

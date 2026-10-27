@@ -16,7 +16,7 @@ export const checkoutSchema = z.object({
 }).strict();
 
 export const reviewSchema = z.object({
-  bookId: z.string().min(1),
+  bookId: z.string().trim().min(1, 'Vui lòng nhập mã sách hoặc ISBN.').max(280),
   rating: z.coerce.number().int().min(1).max(5),
   comment: z.string().trim().max(5000).optional().transform((value) => value || undefined),
 }).strict();

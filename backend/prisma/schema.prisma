@@ -40,13 +40,6 @@ enum PaymentMethod {
   E_WALLET
 }
 
-enum MembershipLevel {
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
-}
-
 enum DiscountType {
   PERCENTAGE
   FIXED_AMOUNT
@@ -62,7 +55,7 @@ model User {
   role            UserRole       @default(CUSTOMER)
   status          RecordStatus   @default(ACTIVE)
   points          Int            @default(0)
-  membershipLevel MembershipLevel @default(BRONZE)
+  membershipLevel String         @default("BRONZE") @db.VarChar(32)
   cart            Cart?
   orders          Order[]
   reviews         Review[]
@@ -187,7 +180,7 @@ model Review {
   comment   String?      @db.Text
   status    RecordStatus @default(ACTIVE)
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book      Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book      Book         @relation(fields: [bookId], references: [id], onDelete: Restrict)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
@@ -199,7 +192,7 @@ model Favorite {
   userId    String   @db.VarChar(30)
   bookId    String   @db.VarChar(30)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Restrict)
   createdAt DateTime @default(now())
 
   @@id([userId, bookId])
@@ -218,7 +211,7 @@ model NewsletterSubscriber {
 
 model Membership {
   id          String         @id @default(cuid()) @db.VarChar(30)
-  level       MembershipLevel @unique
+  level       String         @unique @db.VarChar(32)
   name        String         @db.VarChar(80)
   minPoints   Int            @default(0)
   description String?        @db.Text

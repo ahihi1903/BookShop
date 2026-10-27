@@ -1,6 +1,15 @@
 import { prisma } from '../config/database.js';
 
 export const adminRepository = {
+  orderStatusCounts() {
+    return prisma.order.groupBy({ by: ['orderStatus'], _count: { _all: true } });
+  },
+  categoryDistribution() {
+    return prisma.category.findMany({ select: { id: true, name: true, _count: { select: { books: { where: { status: 'ACTIVE' } } } } }, orderBy: { name: 'asc' } });
+  },
+  lowStockCount(threshold) {
+    return prisma.book.count({ where: { status: 'ACTIVE', stock: { lte: threshold } } });
+  },
   dashboardCounts() {
     return Promise.all([
       prisma.order.aggregate({ where: { paymentStatus: 'PAID' }, _sum: { total: true } }),
@@ -30,14 +39,23 @@ export const adminRepository = {
   findBook(id) { return prisma.book.findUnique({ where: { id }, include: { category: true } }); },
   createBook(data) { return prisma.book.create({ data, include: { category: true } }); },
   updateBook(id, data) { return prisma.book.update({ where: { id }, data, include: { category: true } }); },
-  deleteBook(id) { return prisma.book.update({ where: { id }, data: { status: 'INACTIVE' } }); },
+  countBookReferences(id) {
+    return Promise.all([
+      prisma.cartItem.count({ where: { bookId: id } }),
+      prisma.orderItem.count({ where: { bookId: id } }),
+      prisma.review.count({ where: { bookId: id } }),
+      prisma.favorite.count({ where: { bookId: id } }),
+    ]).then(([cartItems, orderItems, reviews, favorites]) => ({ cartItems, orderItems, reviews, favorites }));
+  },
+  deleteBook(id) { return prisma.book.delete({ where: { id } }); },
 
   listCategories({ where, skip, take }) { return prisma.category.findMany({ where, orderBy: { name: 'asc' }, skip, take, include: { _count: { select: { books: true } } } }); },
   countCategories(where) { return prisma.category.count({ where }); },
   findCategory(id) { return prisma.category.findUnique({ where: { id }, include: { _count: { select: { books: true } } } }); },
+  countCategoryBooks(id) { return prisma.book.count({ where: { categoryId: id } }); },
   createCategory(data) { return prisma.category.create({ data }); },
   updateCategory(id, data) { return prisma.category.update({ where: { id }, data }); },
-  deleteCategory(id) { return prisma.category.update({ where: { id }, data: { status: 'INACTIVE' } }); },
+  deleteCategory(id) { return prisma.category.delete({ where: { id } }); },
 
   listOrders({ where, skip, take }) { return prisma.order.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take, include: { user: { select: { id: true, name: true, email: true } }, _count: { select: { items: true } } } }); },
   countOrders(where) { return prisma.order.count({ where }); },
@@ -45,7 +63,7 @@ export const adminRepository = {
 
   listCustomers({ where, skip, take }) { return prisma.user.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take, select: customerSelect }); },
   countCustomers(where) { return prisma.user.count({ where }); },
-  findCustomer(id) { return prisma.user.findUnique({ where: { id }, select: customerSelect }); },
+  findCustomer(id) { return prisma.user.findUnique({ where: { id }, select: { ...customerSelect, role: true } }); },
   setCustomerStatus(id, status) { return prisma.user.update({ where: { id }, data: { status }, select: customerSelect }); },
 
   listReviews({ where, skip, take }) { return prisma.review.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take, include: { user: { select: { id: true, name: true, email: true } }, book: { select: { id: true, title: true, slug: true } } } }); },
@@ -65,6 +83,7 @@ export const adminRepository = {
   countMemberships(where) { return prisma.membership.count({ where }); },
   createMembership(data) { return prisma.membership.create({ data }); },
   findMembership(id) { return prisma.membership.findUnique({ where: { id } }); },
+  countCustomersWithMembershipLevel(level) { return prisma.user.count({ where: { role: 'CUSTOMER', membershipLevel: level } }); },
   updateMembership(id, data) { return prisma.membership.update({ where: { id }, data }); },
   revenueReportSince(since) {
     return prisma.$queryRaw`

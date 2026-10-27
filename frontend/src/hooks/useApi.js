@@ -16,9 +16,9 @@ export function useApi(loader, dependencies = []) {
     };
   }, []);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async ({ background = false } = {}) => {
     const currentRequest = ++requestId.current;
-    setLoading(true);
+    if (!background) setLoading(true);
     setError('');
     try {
       const response = await loader();

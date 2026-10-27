@@ -9,13 +9,13 @@ export const listBooks = async (req, res) => respond(res, 'Books loaded', await 
 export const getBook = async (req, res) => respond(res, 'Book loaded', await adminService.getBook(req.params.id));
 export const createBook = async (req, res) => respond(res, 'Book created', await adminService.createBook(req.body), 201);
 export const updateBook = async (req, res) => respond(res, 'Book updated', await adminService.updateBook(req.params.id, req.body));
-export const deleteBook = async (req, res) => respond(res, 'Book deactivated', await adminService.deleteBook(req.params.id));
+export const deleteBook = async (req, res) => respond(res, 'Book deleted permanently', await adminService.deleteBook(req.params.id));
 
 export const listCategories = async (req, res) => respond(res, 'Categories loaded', await adminService.listCategories(req.query));
 export const getCategory = async (req, res) => respond(res, 'Category loaded', await adminService.getCategory(req.params.id));
 export const createCategory = async (req, res) => respond(res, 'Category created', await adminService.createCategory(req.body), 201);
 export const updateCategory = async (req, res) => respond(res, 'Category updated', await adminService.updateCategory(req.params.id, req.body));
-export const deleteCategory = async (req, res) => respond(res, 'Category deactivated', await adminService.deleteCategory(req.params.id));
+export const deleteCategory = async (req, res) => respond(res, 'Category deleted permanently', await adminService.deleteCategory(req.params.id));
 
 export const listOrders = async (req, res) => respond(res, 'Orders loaded', await adminService.listOrders(req.query));
 export const getOrder = async (req, res) => respond(res, 'Order loaded', await adminService.getOrder(req.params.id));

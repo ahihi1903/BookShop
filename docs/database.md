@@ -10,7 +10,7 @@ IDs are Prisma `cuid()` strings stored as `VARCHAR(30)`. Monetary fields use `DE
 
 | Model | Main fields and role |
 | --- | --- |
-| `User` | name, unique email, bcrypt hash in `password`, optional unique phone/address, `UserRole`, status, points, enum membership level. One optional cart, many orders/reviews/favorites/gift cards. |
+| `User` | name, unique email, bcrypt hash in `password`, optional unique phone/address, `UserRole`, status, points, membership level code stored as `VARCHAR(32)`. One optional cart, many orders/reviews/favorites/gift cards. |
 | `Category` | name, unique slug, description, status. One-to-many books. |
 | `Book` | title, unique slug, author, optional unique ISBN, description/image, price/optional discount price, stock, publisher/date, status, required category. |
 | `Cart` | Unique `userId`; one user cart with many items. |
@@ -18,7 +18,7 @@ IDs are Prisma `cuid()` strings stored as `VARCHAR(30)`. Monetary fields use `DE
 | `Order` | unique order number, user, order/payment statuses, subtotal/discount/shipping/total, shipping address, payment method, optional note/promotion. Has items and payment records. |
 | `OrderItem` | order, book, title, quantity, `unitPrice`, subtotal. Title and monetary values are saved as order-time snapshots. |
 | `Review` | user, book, integer rating, optional comment, status; unique `(userId, bookId)`. |
-| `Membership` | unique enum level, display name, minimum points, description and status. Stores active tier thresholds; users store their current level as an enum. |
+| `Membership` | unique `VARCHAR(32)` level code, display name, minimum points, description and status. Stores tier thresholds; users store their current level code as a string. |
 | `Promotion` | unique code, discount type/value, minimum order amount, start/end, optional usage limit, used count, status. Orders may refer to one promotion. |
 | `GiftCard` | unique code, initial value, current balance, expiry/status, optional owner. |
 | `Gift` | name/description/image, points cost, stock and status. |
@@ -33,7 +33,6 @@ IDs are Prisma `cuid()` strings stored as `VARCHAR(30)`. Monetary fields use `DE
 - `OrderStatus`: `PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPING`, `DELIVERED`, `CANCELLED`.
 - `PaymentStatus`: `PENDING`, `PAID`, `FAILED`, `REFUNDED`.
 - `PaymentMethod`: `COD`, `BANK_TRANSFER`, `CARD`, `E_WALLET`.
-- `MembershipLevel`: `BRONZE`, `SILVER`, `GOLD`, `PLATINUM`.
 - `DiscountType`: `PERCENTAGE`, `FIXED_AMOUNT`.
 
 ## Relationships and delete behavior

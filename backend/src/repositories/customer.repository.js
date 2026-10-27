@@ -3,6 +3,41 @@ import { prisma } from '../config/database.js';
 
 function createRepository(db) {
   return {
+    findCatalogBookIds({ search, categoryId, minPrice, maxPrice, minRating, priceSort, bestSelling }) {
+      const conditions = [Prisma.sql`b.status = 'ACTIVE'`];
+      if (search) {
+        const pattern = `%${search}%`;
+        conditions.push(Prisma.sql`(b.title LIKE ${pattern} OR b.author LIKE ${pattern} OR b.description LIKE ${pattern})`);
+      }
+      if (categoryId) conditions.push(Prisma.sql`b.categoryId = ${categoryId}`);
+
+      const effectivePrice = Prisma.sql`CASE
+        WHEN b.discountPrice IS NOT NULL AND b.discountPrice > 0 AND b.discountPrice < b.price
+        THEN b.discountPrice ELSE b.price END`;
+      if (minPrice !== undefined) conditions.push(Prisma.sql`${effectivePrice} >= ${minPrice}`);
+      if (maxPrice !== undefined) conditions.push(Prisma.sql`${effectivePrice} <= ${maxPrice}`);
+
+      const having = minRating === undefined
+        ? Prisma.empty
+        : Prisma.sql`HAVING ROUND(AVG(r.rating), 1) >= ${minRating}`;
+      const priceOrder = bestSelling
+        ? Prisma.sql`ORDER BY (SELECT COALESCE(SUM(oi.quantity), 0) FROM OrderItem oi JOIN \`Order\` o ON o.id = oi.orderId WHERE oi.bookId = b.id AND o.orderStatus = 'DELIVERED' AND o.paymentStatus NOT IN ('REFUNDED', 'FAILED')) DESC, b.id ASC`
+        : priceSort === 'price_asc'
+        ? Prisma.sql`ORDER BY effectivePrice ASC, b.id ASC`
+        : priceSort === 'price_desc'
+          ? Prisma.sql`ORDER BY effectivePrice DESC, b.id ASC`
+          : Prisma.empty;
+
+      return db.$queryRaw(Prisma.sql`
+        SELECT b.id AS id, ${effectivePrice} AS effectivePrice
+        FROM Book AS b
+        LEFT JOIN Review AS r ON r.bookId = b.id AND r.status = 'ACTIVE'
+        WHERE ${Prisma.join(conditions, ' AND ')}
+        GROUP BY b.id, b.price, b.discountPrice
+        ${having}
+        ${priceOrder}
+      `);
+    },
     listBooks({ where, orderBy, skip, take }) {
       return db.book.findMany({
         where,
@@ -12,18 +47,35 @@ function createRepository(db) {
         include: {
           category: { select: { id: true, name: true, slug: true } },
           reviews: { where: { status: 'ACTIVE' }, select: { rating: true } },
-          _count: { select: { reviews: true } },
+          _count: { select: { reviews: { where: { status: 'ACTIVE' } } } },
         },
       });
     },
     countBooks(where) { return db.book.count({ where }); },
+    async findBookForReview(reference) {
+      const value = String(reference).trim();
+      const exact = await db.book.findFirst({
+        where: { OR: [{ id: value }, { slug: value }, { isbn: value }] },
+        select: { id: true, status: true },
+      });
+      if (exact) return exact;
+      const isbn = value.replace(/[\s\-\u2010-\u2015]/g, '').toUpperCase();
+      if (!/^(?:\d{13}|\d{9}[\dX])$/.test(isbn)) return null;
+      const books = await db.$queryRaw(Prisma.sql`
+        SELECT id, status FROM Book
+        WHERE UPPER(REPLACE(REPLACE(isbn, '-', ''), ' ', '')) = ${isbn}
+        LIMIT 2
+      `);
+      // Never associate a review with an arbitrary edition if legacy ISBNs collide.
+      return books.length === 1 ? books[0] : null;
+    },
     findBook(idOrSlug) {
       return db.book.findFirst({
         where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }] },
         include: {
           category: { select: { id: true, name: true, slug: true } },
           reviews: { where: { status: 'ACTIVE' }, select: { rating: true } },
-          _count: { select: { reviews: true } },
+          _count: { select: { reviews: { where: { status: 'ACTIVE' } } } },
         },
       });
     },
@@ -93,25 +145,28 @@ function createRepository(db) {
     hasDeliveredBookPurchase(userId, bookId) {
       return db.orderItem.findFirst({ where: { bookId, order: { userId, orderStatus: 'DELIVERED' } }, select: { id: true } });
     },
-    listReviews({ bookId, userId, skip, take }) {
+    listReviews({ bookId, userId, skip, take, includeInactive = false }) {
       return db.review.findMany({
-        where: { status: 'ACTIVE', ...(bookId ? { bookId } : {}), ...(userId ? { userId } : {}) },
+        where: { ...(!includeInactive ? { status: 'ACTIVE' } : {}), ...(bookId ? { bookId } : {}), ...(userId ? { userId } : {}) },
         orderBy: { createdAt: 'desc' }, skip, take,
         include: { user: { select: { id: true, name: true } }, book: { select: { id: true, title: true, slug: true } } },
       });
     },
-    countReviews(where) { return db.review.count({ where: { status: 'ACTIVE', ...where } }); },
+    countReviews(where, includeInactive = false) { return db.review.count({ where: { ...where, ...(!includeInactive ? { status: 'ACTIVE' } : {}) } }); },
     upsertReview({ userId, bookId, rating, comment }) {
       return db.review.upsert({
         where: { userId_bookId: { userId, bookId } },
-        create: { userId, bookId, rating, comment },
-        update: { rating, comment, status: 'ACTIVE' },
+        create: { userId, bookId, rating, comment, status: 'INACTIVE' },
+        update: { rating, comment: comment ?? null, status: 'INACTIVE' },
         include: { book: { select: { id: true, title: true, slug: true } } },
       });
     },
     findUser(id) { return db.user.findUnique({ where: { id } }); },
     findPublicUser(id) { return db.user.findUnique({ where: { id }, select: publicUserSelect }); },
     findReview(userId, bookId) { return db.review.findUnique({ where: { userId_bookId: { userId, bookId } } }); },
+    listFavorites(userId) {
+      return db.favorite.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, include: { book: { include: { category: { select: { id: true, name: true, slug: true } } } } } });
+    },
     findFavorite(userId, bookId) { return db.favorite.findUnique({ where: { userId_bookId: { userId, bookId } } }); },
     createFavorite(userId, bookId) { return db.favorite.create({ data: { userId, bookId } }); },
     deleteFavorite(userId, bookId) { return db.favorite.delete({ where: { userId_bookId: { userId, bookId } } }); },

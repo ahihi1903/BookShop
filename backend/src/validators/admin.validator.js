@@ -6,8 +6,8 @@ const stock = z.coerce.number().int().min(0);
 
 const bookFieldsSchema = z.object({
   title: z.string().trim().min(1).max(255),
-  author: z.string().trim().min(1).max(255),
-  description: optionalText(),
+  author: z.string().trim().min(1).max(180),
+  description: optionalText().nullable(),
   price: nonNegativePrice,
   discountPrice: nonNegativePrice.optional().nullable(),
   stock,
@@ -26,7 +26,7 @@ export const bookUpdateSchema = bookFieldsSchema.partial()
 
 export const categoryCreateSchema = z.object({
   name: z.string().trim().min(1).max(120),
-  description: optionalText(1000),
+  description: optionalText(1000).nullable(),
   image: z.string().trim().max(2048).optional().nullable(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 });
@@ -59,9 +59,9 @@ export const promotionUpdateSchema = promotionFieldsSchema.partial()
     { path: ['discountValue'], message: 'Percentage cannot exceed 100' });
 
 export const membershipCreateSchema = z.object({
-  level: z.enum(['BRONZE', 'SILVER', 'GOLD', 'PLATINUM']),
+  level: z.string().trim().min(2).max(32).regex(/^[A-Za-z][A-Za-z0-9_]*$/, 'Level must start with a letter and contain only letters, numbers, or underscores').transform((level) => level.toUpperCase()),
   name: z.string().trim().min(1).max(80),
-  minPoints: z.coerce.number().int().min(0),
+  minPoints: z.preprocess((value) => typeof value === 'string' && !value.trim() ? Number.NaN : value, z.coerce.number().int().min(0)),
   description: optionalText(1000),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 });
